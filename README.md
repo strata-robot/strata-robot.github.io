@@ -11,7 +11,8 @@ Preview (private): https://claude.ai/artifact/Rs7NALzfhYWCof2ZLhLP6f
 
 | Section | Content | Source |
 |---|---|---|
-| Hero | wordmark, full title, one-line pitch, animated "strata" of the desk-lamp recording | ep 27113 dump |
+| Hero | supermarket video background (AgiBot 2026 unseen task 3401, rec 626, 2x) + its timeline strip with a playhead synced to the video | FOCUS dump + video |
+| Videos | 9 cards: head camera at 4x + Reference / TVF / STRATA bars with a shared playhead, autoplay when visible | build_videos.py |
 | Authors band | anonymous during review; Paper / arXiv / Code / Dataset buttons (disabled), BibTeX | – |
 | Abstract | verbatim abstract + four headline numbers; Fig. 1 | PDF p. 1 |
 | One recording | interactive explorer: 9 unseen-task recordings (AgiBot 2026 RL / IL, Galaxea; picker by benchmark), steps Recording → TVF → FOCUS → STRATA, hover/tap/arrow keys, live F1 | FOCUS draw-0 dumps + datasets |
@@ -33,6 +34,7 @@ static/img/ex/<ep>/        head-camera frames for the explorer
 static/img/paper/          paper figures (fig1, fig2, fig4–fig9) + extracted.js manifest
 tools/select_examples.py   rank recordings per benchmark from FOCUS dumps
 tools/build_examples.py    explorer data + frames for the chosen recordings
+tools/build_videos.py      video cards (static/video/<ep>.mp4, 4x) + hero background (hero.mp4, 2x, rec 626)
 tools/extract_paper_figs.py  cut figures from the final PDF (300 dpi, auto-trim)
 tools/make_preview.py      strip the document skeleton for the claude.ai preview
 ```

@@ -83,7 +83,7 @@
         links.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + id));
       });
     }, { rootMargin: "-45% 0px -50% 0px" });
-    ["explore", "method", "tvf", "focus", "results", "humanoid", "cite"].forEach((id) => { const s = document.getElementById(id); if (s) io.observe(s); });
+    ["videos", "explore", "method", "tvf", "focus", "results", "humanoid", "cite"].forEach((id) => { const s = document.getElementById(id); if (s) io.observe(s); });
   }
 
   /* ---------------- light / dark switch (light is the default) ---------------- */
@@ -102,64 +102,161 @@
   // pastel layers fixed for the navy hero (same look in both themes)
   const HERO_SEG = ["#f2b38f", "#f6d36b", "#a9d18e", "#9cc3e6", "#c9a6e0", "#f5c6a5", "#8fd3c4", "#b5c6e8", "#f0a8b8", "#d8d29a"];
   const coreSvg = $("#core");
-  let heroAnimated = false;
+  const HERO_ID = "626", HERO_SPEED = 2;     // tools/build_videos.py: hero.mp4 = recording 626 at 2x
+  const heroVid = $("#hero-video");
+  const heroRef = { ep: null, W: 0, line: null, segs: [], cur: -2 };
+  if (heroVid && reduced) { heroVid.removeAttribute("autoplay"); heroVid.pause(); }
   function drawHero() {
-    const ep = EPS[0];
+    const ep = EPS.find((e) => e.id === HERO_ID) || EPS[0];
     if (!ep || !coreSvg) return;
-    const W = Math.max(280, coreSvg.parentElement.clientWidth), H = 168;
+    const W = Math.max(280, coreSvg.parentElement.clientWidth), H = 172;
     const narrow = W < 640;
     coreSvg.innerHTML = "";
     coreSvg.setAttribute("viewBox", `0 0 ${W} ${H}`);
     coreSvg.setAttribute("height", H);
     const x = (t) => (t / ep.duration) * W;
-    const animate = !reduced && !heroAnimated;
     // telemetry
     const telH = 58;
     ep.tel.forEach((ch, i) => {
       let d = "";
       ch.forEach((v, k) => { d += (k ? "L" : "M") + x(k * ep.tel_dt).toFixed(1) + "," + (4 + (1 - v) * (telH - 8)).toFixed(1); });
-      el("path", { d, fill: "none", stroke: "var(--snow)", "stroke-opacity": (0.18 + 0.07 * i).toFixed(2), "stroke-width": 1.2 }, coreSvg);
+      el("path", { d, fill: "none", stroke: "var(--snow)", "stroke-opacity": (0.22 + 0.07 * i).toFixed(2), "stroke-width": 1.2 }, coreSvg);
     });
     // sub-task layers
     const gy = 70, gh = 30;
-    ep.segments.forEach((s, i) => {
-      el("rect", { x: x(s.s) + 0.5, y: gy, width: Math.max(1, x(s.e) - x(s.s) - 1), height: gh, rx: 3, fill: HERO_SEG[i % HERO_SEG.length], "fill-opacity": 0.92 }, coreSvg);
+    heroRef.segs = ep.segments.map((s, i) => {
+      const r = el("rect", { x: x(s.s) + 0.5, y: gy, width: Math.max(1, x(s.e) - x(s.s) - 1), height: gh, rx: 3, fill: HERO_SEG[i % HERO_SEG.length], "fill-opacity": 0.92 }, coreSvg);
       const wpx = x(s.e) - x(s.s);
       if (wpx > s.label.length * 6.4 + 8) {
-        const tx = el("text", { x: (x(s.s) + x(s.e)) / 2, y: gy + gh / 2 + 4, "text-anchor": "middle", "font-size": 11.5, "font-family": "IBM Plex Sans, sans-serif", fill: "#14203d" }, coreSvg);
+        const tx = el("text", { x: (x(s.s) + x(s.e)) / 2, y: gy + gh / 2 + 4, "text-anchor": "middle", "font-size": 11.5, "font-family": "IBM Plex Sans, sans-serif", fill: "#14203d", "pointer-events": "none" }, coreSvg);
         tx.textContent = s.label;
       }
+      return r;
     });
-    // boundaries
-    const { kept } = episodeSets(ep);
-    const rejected = ep.cand.filter((c) => !c.prop && c.h >= 0.5 && c.p < 0.5);
-    const delay = (t) => (0.3 + 2.4 * (t / ep.duration)).toFixed(2) + "s";
-    kept.sort((a, b) => a.t - b.t).forEach((c, i) => {
-      const g = el("g", animate ? { class: "pop", style: `animation-delay:${delay(c.t)}` } : {}, coreSvg);
-      el("line", { x1: x(c.t), x2: x(c.t), y1: 0, y2: gy + gh + 8, stroke: "var(--glow)", "stroke-width": 2, "stroke-dasharray": c.prop ? "4 3" : "none" }, g);
-      el("circle", { cx: x(c.t), cy: gy + gh + 8, r: 3, fill: "var(--glow)" }, g);
-      const lab = el("text", { x: x(c.t), y: gy + gh + 24 + (narrow ? (i % 2) * 13 : 0), "text-anchor": "middle", "font-size": narrow ? 10 : 11, "font-family": "IBM Plex Mono, monospace", fill: "var(--glow-soft)" }, g);
-      lab.textContent = (narrow ? "" : "P ") + fmt(c.p);
+    // boundaries STRATA keeps, with P labels when there is room
+    const kept = episodeSets(ep).kept.slice().sort((p, q) => p.t - q.t);
+    const gap = W / Math.max(1, kept.length);
+    const showLab = gap >= 24, alt = gap < 50, short = narrow || gap < 40;
+    kept.forEach((c, i) => {
+      el("line", { x1: x(c.t), x2: x(c.t), y1: 0, y2: gy + gh + 8, stroke: "var(--glow)", "stroke-width": 1.8, "stroke-dasharray": c.prop ? "4 3" : "none" }, coreSvg);
+      el("circle", { cx: x(c.t), cy: gy + gh + 8, r: 2.8, fill: "var(--glow)" }, coreSvg);
+      if (!showLab) return;
+      const lab = el("text", { x: x(c.t), y: gy + gh + 23 + (alt ? (i % 2) * 13 : 0), "text-anchor": "middle", "font-size": short ? 10 : 11, "font-family": "IBM Plex Mono, monospace", fill: "var(--glow-soft)" }, coreSvg);
+      lab.textContent = (short ? "" : "P ") + fmt(c.p);
     });
-    rejected.forEach((c) => {
-      const g = el("g", animate ? { class: "pop", style: `animation-delay:${delay(c.t)}` } : {}, coreSvg);
+    ep.cand.filter((c) => !c.prop && c.h >= 0.5 && c.p < 0.5).forEach((c) => {
       const cx = x(c.t), cy = gy - 6;
-      el("path", { d: `M${cx - 4},${cy - 4}L${cx + 4},${cy + 4}M${cx + 4},${cy - 4}L${cx - 4},${cy + 4}`, stroke: "var(--bad-glow)", "stroke-width": 1.6 }, g);
+      el("path", { d: `M${cx - 4},${cy - 4}L${cx + 4},${cy + 4}M${cx + 4},${cy - 4}L${cx - 4},${cy + 4}`, stroke: "var(--bad-glow)", "stroke-width": 1.8 }, coreSvg);
     });
     // time axis
-    const ay = H - 10;
-    for (let t = 0; t <= ep.duration; t += 10) {
-      if (narrow && t % 20) continue;
+    const ay = H - 6, step = narrow ? 20 : 10;
+    for (let t = 0; t <= ep.duration; t += step) {
       const tx = el("text", { x: Math.min(W - 12, x(t)), y: ay, "text-anchor": t === 0 ? "start" : "middle", "font-size": 10, "font-family": "IBM Plex Mono, monospace", fill: "var(--snow-dim)" }, coreSvg);
       tx.textContent = t === 0 ? "0 s" : t;
     }
-    if (animate) {
-      const scan = el("rect", { x: 0, y: 0, width: 2, height: gy + gh + 8, fill: "var(--glow)", class: "scan", style: `--scan-to:${W}px; filter: drop-shadow(0 0 6px #7fa8ff)` }, coreSvg);
-      scan.addEventListener("animationend", () => scan.remove());
-      heroAnimated = true;
-    }
+    // playhead, driven by the background video
+    heroRef.line = el("line", { x1: -10, x2: -10, y1: -4, y2: gy + gh + 10, stroke: "#ffffff", "stroke-width": 2, style: "filter: drop-shadow(0 0 5px #7fa8ff)", visibility: reduced ? "hidden" : "visible" }, coreSvg);
+    heroRef.ep = ep; heroRef.W = W; heroRef.cur = -2;
     const { mt, ms } = episodeSets(ep);
     $("#core-f1").innerHTML = `TVF alone <b>F1 ${Math.round(mt.f1 * 100)}</b> &nbsp;→&nbsp; STRATA <b>F1 ${Math.round(ms.f1 * 100)}</b>`;
+    $("#core-cap").innerHTML = `<b>${ep.bench.split(" · ")[0]} · unseen supermarket task</b> &nbsp;·&nbsp; ${ep.name}, ${Math.round(ep.duration)} s, ${ep.truth.length} sub-task boundaries &nbsp;·&nbsp; background video at ${HERO_SPEED}×`;
+  }
+  function heroTick() {
+    const R = heroRef;
+    if (!R.ep || !heroVid || !R.line || heroVid.paused) return;
+    const t = Math.min(R.ep.duration, heroVid.currentTime * HERO_SPEED);
+    const xx = (t / R.ep.duration) * R.W;
+    R.line.setAttribute("x1", xx); R.line.setAttribute("x2", xx);
+    const i = R.ep.segments.findIndex((s) => t >= s.s && t < s.e);
+    if (i !== R.cur) { R.segs.forEach((r, j) => r.setAttribute("fill-opacity", j === i ? 1 : 0.5)); R.cur = i; }
+  }
+
+  /* ---------------- video cards ---------------- */
+  const SPEED = 4;                            // tools/build_videos.py: <ep>.mp4 at 4x
+  const CARD_ORDER = ["626", "27113", "230", "4439", "20397", "10819", "6888", "23863", "16157"];
+  const vcards = [];
+  function predSegs(ep, times) {
+    // only the span the reference annotates (some recordings have unlabelled heads / tails)
+    const lo = ep.segments[0].s, hi = ep.segments[ep.segments.length - 1].e;
+    const cuts = [lo, ...times.filter((t) => t > lo && t < hi).sort((p, q) => p - q), hi];
+    const out = [];
+    for (let i = 0; i < cuts.length - 1; i++) {
+      const a = cuts[i], b = cuts[i + 1];
+      let best = -1, bo = 0;
+      ep.segments.forEach((sg, j) => { const o = Math.min(b, sg.e) - Math.max(a, sg.s); if (o > bo) { bo = o; best = j; } });
+      out.push({ s: a, e: b, j: best });
+    }
+    return out;
+  }
+  function initVideos() {
+    const grid = $("#vgrid");
+    if (!grid || !EPS.length) return;
+    const order = CARD_ORDER.map((id) => EPS.findIndex((e) => e.id === id)).filter((i) => i >= 0);
+    EPS.forEach((_, i) => { if (!order.includes(i)) order.push(i); });
+    order.forEach((i) => {
+      const ep = EPS[i], sets = episodeSets(ep), D = ep.duration;
+      const bar = (segs) => segs.filter((g) => g.j >= 0).map((g) =>
+        `<b style="left:${(100 * g.s / D).toFixed(2)}%;width:${(100 * (g.e - g.s) / D).toFixed(2)}%;background:var(--s${g.j % 10})"></b>`).join("");
+      const ref = ep.segments.map((g, j) => ({ s: g.s, e: g.e, j }));
+      const keys = ep.frames.filter((f) => f.key);
+      const poster = (keys.length ? keys : ep.frames)[Math.floor((keys.length ? keys : ep.frames).length / 2)];
+      const f1t = Math.round(sets.mt.f1 * 100), f1s = Math.round(sets.ms.f1 * 100);
+      const card = h("article", { class: "vcard" });
+      card.innerHTML = `
+        <div class="vmedia" role="button" tabindex="0" aria-label="Pause or play: ${ep.name}">
+          <video muted loop playsinline preload="none" poster="${poster.src}" src="static/video/${ep.id}.mp4"></video>
+          <span class="vt">0.0 / ${D.toFixed(1)} s</span><span class="vx">${SPEED}× speed</span><span class="vpause">Paused</span>
+        </div>
+        <div class="vtl">
+          <span class="lab" style="grid-column:1;grid-row:1">Reference</span>
+          <span class="lab" style="grid-column:1;grid-row:2">TVF</span>
+          <span class="lab s" style="grid-column:1;grid-row:3">STRATA</span>
+          <div class="vbars"><div class="vbar">${bar(ref)}</div><div class="vbar">${bar(predSegs(ep, sets.tvf.map((c) => c.t)))}</div><div class="vbar">${bar(predSegs(ep, sets.kept.map((c) => c.t)))}</div><i class="vhead"></i></div>
+          <span class="f1" style="grid-column:3;grid-row:1;color:var(--ink-faint)">F1</span>
+          <span class="f1" style="grid-column:3;grid-row:2">${f1t}</span>
+          <span class="f1 s" style="grid-column:3;grid-row:3">${f1s}</span>
+        </div>
+        <div class="vbody"><b>${ep.name}</b><span>${ep.bench} · ${ep.truth.length} true boundaries</span>
+          <span class="vgain">F1 at ±1 s: TVF ${f1t} → STRATA <em>${f1s}</em></span>
+          <button type="button">Step through it →</button></div>`;
+      const v = $("video", card), media = $(".vmedia", card);
+      const c = { ep, v, card, media, head: $(".vhead", card), vt: $(".vt", card), user: false, seen: false };
+      const toggle = () => {
+        if (v.paused) { c.user = false; media.classList.remove("paused"); v.play().catch(() => {}); }
+        else { c.user = true; media.classList.add("paused"); v.pause(); }
+      };
+      media.addEventListener("click", toggle);
+      media.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+      $("button", card).addEventListener("click", () => {
+        setEpisode(i);
+        $("#explore").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+      });
+      vcards.push(c);
+      grid.appendChild(card);
+    });
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((ents) => ents.forEach((en) => {
+        const c = vcards.find((k) => k.card === en.target);
+        if (!c) return;
+        c.seen = en.isIntersecting;
+        if (c.seen && !c.user && !reduced) c.v.play().catch(() => {});
+        else if (!c.seen) c.v.pause();
+      }), { threshold: 0.35 });
+      vcards.forEach((c) => io.observe(c.card));
+      const hio = new IntersectionObserver((ents) => ents.forEach((en) => {
+        if (!heroVid) return;
+        if (en.isIntersecting && !reduced) heroVid.play().catch(() => {}); else heroVid.pause();
+      }), { threshold: 0.05 });
+      hio.observe($("#top"));
+    }
+  }
+  function cardsTick() {
+    vcards.forEach((c) => {
+      if (c.v.paused) return;
+      const t = Math.min(c.ep.duration, c.v.currentTime * SPEED);
+      c.head.style.left = (100 * t / c.ep.duration).toFixed(2) + "%";
+      c.vt.textContent = `${t.toFixed(1)} / ${c.ep.duration.toFixed(1)} s`;
+    });
   }
 
   /* ---------------- explorer ---------------- */
@@ -624,6 +721,8 @@
   /* ---------------- boot ---------------- */
   drawHero();
   initExplorer();
+  initVideos();
+  (function loop() { heroTick(); cardsTick(); requestAnimationFrame(loop); })();
   let lastW = window.innerWidth;
   window.addEventListener("resize", debounce(() => {
     if (window.innerWidth === lastW) return;

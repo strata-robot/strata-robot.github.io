@@ -22,6 +22,7 @@
   <div class="wrap">
     <a class="brand" href="#top"><i></i>STRATA</a>
     <ul>
+      <li><a href="#videos">Videos</a></li>
       <li><a href="#explore">Example</a></li>
       <li><a href="#method">Method</a></li>
       <li><a href="#results">Results</a></li>
@@ -37,6 +38,8 @@
 </nav>
 
 <header class="hero" id="top">
+  <video class="hero-video" id="hero-video" src="static/video/hero.mp4" poster="static/video/hero.jpg" muted loop playsinline autoplay preload="auto" aria-hidden="true"></video>
+  <div class="hero-shade"></div>
   <div class="wrap">
     <div class="topline">
       <span class="draft">Draft preview · do not share before the paper is public</span>
@@ -51,8 +54,8 @@
     <p class="lede"><b>TVF</b> finds where one sub-task ends and the next begins, from three camera views and the robot's own 30&nbsp;Hz telemetry. <b>FOCUS</b> then checks every boundary against a few labelled recordings of the new task and returns a calibrated probability: accept it, send it to review, or drop it.</p>
 
     <div class="core" aria-label="Animated example: STRATA boundaries on one recording">
-      <div class="core-head"><span><b>AgiBot World 2026 · unseen task</b> &nbsp;·&nbsp; Pack a desk lamp, 73 s &nbsp;·&nbsp; 5 labelled recordings</span><span id="core-f1">TVF alone <b>F1 44</b> &nbsp;→&nbsp; STRATA <b>F1 94</b></span></div>
-      <svg id="core" role="img" aria-label="Telemetry traces and sub-task layers of a 73-second recording, with the boundaries STRATA keeps marked in red"></svg>
+      <div class="core-head"><span id="core-cap"><b>AgiBot World 2026 · unseen supermarket task</b></span><span id="core-f1">TVF alone <b>F1 44</b> &nbsp;→&nbsp; STRATA <b>F1 94</b></span></div>
+      <svg id="core" role="img" aria-label="Telemetry traces and sub-task layers of the supermarket recording playing in the background, with the boundaries STRATA keeps and a playhead following the video"></svg>
       <div class="core-legend">
         <span><i></i>kept, true boundary (P shown)</span>
         <span><i class="d"></i>missed by TVF, recovered by FOCUS</span>
@@ -82,6 +85,16 @@
     </div>
   </div>
 </div>
+
+<section class="videos-sec" id="videos">
+  <div class="wrap">
+    <div class="kicker">On tasks no model saw in training</div>
+    <h2>Watch STRATA <em>cut the recording</em></h2>
+    <p class="intro">Each clip plays the robot's head camera at 4× speed. Under it, three timelines share one playhead: the reference sub-tasks, TVF on its own, and STRATA after FOCUS. Each predicted segment takes the colour of the reference sub-task it covers most, so a wrong split shows as an extra divider and a missed change shows as one colour running into the next sub-task.</p>
+    <div class="vgrid" id="vgrid"></div>
+    <p class="note">Recordings picked as the clearest cases among unlabelled recordings of unseen tasks; averages are under <a href="#results">Results</a>. Click a video to pause it.</p>
+  </div>
+</section>
 
 <section class="abstract-sec" id="abstract">
   <div class="wrap">
