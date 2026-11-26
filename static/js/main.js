@@ -86,7 +86,21 @@
     ["explore", "method", "tvf", "focus", "results", "humanoid", "cite"].forEach((id) => { const s = document.getElementById(id); if (s) io.observe(s); });
   }
 
+  /* ---------------- light / dark switch (light is the default) ---------------- */
+  const root = document.documentElement;
+  function setTheme(t, save) {
+    root.setAttribute("data-theme", t);
+    $$(".theme button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.theme === t)));
+    if (save) { try { localStorage.setItem("strata-theme", t); } catch (e) { /* storage blocked: still switches */ } }
+  }
+  let saved = null;
+  try { saved = localStorage.getItem("strata-theme"); } catch (e) { saved = null; }
+  setTheme(saved === "dark" ? "dark" : "light", false); // light unless the visitor picked dark
+  $$(".theme button").forEach((b) => b.addEventListener("click", () => setTheme(b.dataset.theme, true)));
+
   /* ---------------- hero: the recording as strata ---------------- */
+  // pastel layers fixed for the navy hero (same look in both themes)
+  const HERO_SEG = ["#f2b38f", "#f6d36b", "#a9d18e", "#9cc3e6", "#c9a6e0", "#f5c6a5", "#8fd3c4", "#b5c6e8", "#f0a8b8", "#d8d29a"];
   const coreSvg = $("#core");
   let heroAnimated = false;
   function drawHero() {
@@ -104,15 +118,15 @@
     ep.tel.forEach((ch, i) => {
       let d = "";
       ch.forEach((v, k) => { d += (k ? "L" : "M") + x(k * ep.tel_dt).toFixed(1) + "," + (4 + (1 - v) * (telH - 8)).toFixed(1); });
-      el("path", { d, fill: "none", stroke: "#f3eeee", "stroke-opacity": (0.18 + 0.07 * i).toFixed(2), "stroke-width": 1.2 }, coreSvg);
+      el("path", { d, fill: "none", stroke: "var(--snow)", "stroke-opacity": (0.18 + 0.07 * i).toFixed(2), "stroke-width": 1.2 }, coreSvg);
     });
     // sub-task layers
     const gy = 70, gh = 30;
     ep.segments.forEach((s, i) => {
-      el("rect", { x: x(s.s) + 0.5, y: gy, width: Math.max(1, x(s.e) - x(s.s) - 1), height: gh, rx: 3, fill: `var(--s${i % 10})`, "fill-opacity": 0.92 }, coreSvg);
+      el("rect", { x: x(s.s) + 0.5, y: gy, width: Math.max(1, x(s.e) - x(s.s) - 1), height: gh, rx: 3, fill: HERO_SEG[i % HERO_SEG.length], "fill-opacity": 0.92 }, coreSvg);
       const wpx = x(s.e) - x(s.s);
       if (wpx > s.label.length * 6.4 + 8) {
-        const tx = el("text", { x: (x(s.s) + x(s.e)) / 2, y: gy + gh / 2 + 4, "text-anchor": "middle", "font-size": 11.5, "font-family": "IBM Plex Sans, sans-serif", fill: "#24191a" }, coreSvg);
+        const tx = el("text", { x: (x(s.s) + x(s.e)) / 2, y: gy + gh / 2 + 4, "text-anchor": "middle", "font-size": 11.5, "font-family": "IBM Plex Sans, sans-serif", fill: "#14203d" }, coreSvg);
         tx.textContent = s.label;
       }
     });
@@ -122,25 +136,25 @@
     const delay = (t) => (0.3 + 2.4 * (t / ep.duration)).toFixed(2) + "s";
     kept.sort((a, b) => a.t - b.t).forEach((c, i) => {
       const g = el("g", animate ? { class: "pop", style: `animation-delay:${delay(c.t)}` } : {}, coreSvg);
-      el("line", { x1: x(c.t), x2: x(c.t), y1: 0, y2: gy + gh + 8, stroke: "#ff4a5f", "stroke-width": 2, "stroke-dasharray": c.prop ? "4 3" : "none" }, g);
-      el("circle", { cx: x(c.t), cy: gy + gh + 8, r: 3, fill: "#ff4a5f" }, g);
-      const lab = el("text", { x: x(c.t), y: gy + gh + 24 + (narrow ? (i % 2) * 13 : 0), "text-anchor": "middle", "font-size": narrow ? 10 : 11, "font-family": "IBM Plex Mono, monospace", fill: "#ff8a98" }, g);
+      el("line", { x1: x(c.t), x2: x(c.t), y1: 0, y2: gy + gh + 8, stroke: "var(--glow)", "stroke-width": 2, "stroke-dasharray": c.prop ? "4 3" : "none" }, g);
+      el("circle", { cx: x(c.t), cy: gy + gh + 8, r: 3, fill: "var(--glow)" }, g);
+      const lab = el("text", { x: x(c.t), y: gy + gh + 24 + (narrow ? (i % 2) * 13 : 0), "text-anchor": "middle", "font-size": narrow ? 10 : 11, "font-family": "IBM Plex Mono, monospace", fill: "var(--glow-soft)" }, g);
       lab.textContent = (narrow ? "" : "P ") + fmt(c.p);
     });
     rejected.forEach((c) => {
       const g = el("g", animate ? { class: "pop", style: `animation-delay:${delay(c.t)}` } : {}, coreSvg);
       const cx = x(c.t), cy = gy - 6;
-      el("path", { d: `M${cx - 4},${cy - 4}L${cx + 4},${cy + 4}M${cx + 4},${cy - 4}L${cx - 4},${cy + 4}`, stroke: "#8c7f80", "stroke-width": 1.6 }, g);
+      el("path", { d: `M${cx - 4},${cy - 4}L${cx + 4},${cy + 4}M${cx + 4},${cy - 4}L${cx - 4},${cy + 4}`, stroke: "var(--bad-glow)", "stroke-width": 1.6 }, g);
     });
     // time axis
     const ay = H - 10;
     for (let t = 0; t <= ep.duration; t += 10) {
       if (narrow && t % 20) continue;
-      const tx = el("text", { x: Math.min(W - 12, x(t)), y: ay, "text-anchor": t === 0 ? "start" : "middle", "font-size": 10, "font-family": "IBM Plex Mono, monospace", fill: "#b9adae" }, coreSvg);
+      const tx = el("text", { x: Math.min(W - 12, x(t)), y: ay, "text-anchor": t === 0 ? "start" : "middle", "font-size": 10, "font-family": "IBM Plex Mono, monospace", fill: "var(--snow-dim)" }, coreSvg);
       tx.textContent = t === 0 ? "0 s" : t;
     }
     if (animate) {
-      const scan = el("rect", { x: 0, y: 0, width: 2, height: gy + gh + 8, fill: "#ff4a5f", class: "scan", style: `--scan-to:${W}px; filter: drop-shadow(0 0 6px #ff4a5f)` }, coreSvg);
+      const scan = el("rect", { x: 0, y: 0, width: 2, height: gy + gh + 8, fill: "var(--glow)", class: "scan", style: `--scan-to:${W}px; filter: drop-shadow(0 0 6px #7fa8ff)` }, coreSvg);
       scan.addEventListener("animationend", () => scan.remove());
       heroAnimated = true;
     }
@@ -186,7 +200,7 @@
     const labels = [["frames", "frames", R.frames], ["robot state", "state", R.tel], ["sub-tasks", "sub-tasks", R.gt], ["TVF", "TVF", R.tvf], ["FOCUS", "FOCUS", R.focus], ["STRATA", "STRATA", R.strata]];
     labels.forEach(([full, short, [yy, hh]], i) => {
       const bold = i >= 3;
-      const t = el("text", { x: 0, y: yy + hh / 2 + 4, "font-size": bold ? 13 : 11.5, "font-weight": bold ? 700 : 400, fill: i === 5 ? "var(--red)" : bold ? "var(--ink)" : "var(--ink-dim)", class: i >= 3 ? `st${i - 1}l` : "" }, svg);
+      const t = el("text", { x: 0, y: yy + hh / 2 + 4, "font-size": bold ? 13 : 11.5, "font-weight": bold ? 700 : 400, fill: i === 5 ? "var(--accent)" : bold ? "var(--ink)" : "var(--ink-dim)", class: i >= 3 ? `st${i - 1}l` : "" }, svg);
       t.textContent = narrow ? short : full;
     });
 
@@ -248,8 +262,8 @@
     ep.cand.forEach((c, k) => {
       if (c.prop) return;
       const top = vb - c.h * (vh - 8), op = c.h >= 0.5 ? 1 : 0.35;
-      el("line", { x1: x(c.t), x2: x(c.t), y1: vb, y2: top, stroke: "var(--red)", "stroke-width": 2.2, "stroke-opacity": op }, g2);
-      el("circle", { cx: x(c.t), cy: top, r: 3.4, fill: "var(--red)", "fill-opacity": op, "data-k": k }, g2);
+      el("line", { x1: x(c.t), x2: x(c.t), y1: vb, y2: top, stroke: "var(--accent)", "stroke-width": 2.2, "stroke-opacity": op }, g2);
+      el("circle", { cx: x(c.t), cy: top, r: 3.4, fill: "var(--accent)", "fill-opacity": op, "data-k": k }, g2);
     });
 
     // FOCUS row
@@ -267,11 +281,11 @@
       if (!d) return;
       const cx = x(c.t), top = fb - c.p * (fh - 8);
       if (d === "reject") {
-        el("line", { x1: cx, x2: cx, y1: fb, y2: top, stroke: "var(--ink-faint)", "stroke-width": 1.6 }, g3);
-        el("path", { d: `M${cx - 4},${top - 4}L${cx + 4},${top + 4}M${cx + 4},${top - 4}L${cx - 4},${top + 4}`, stroke: "var(--ink-faint)", "stroke-width": 2 }, g3);
+        el("line", { x1: cx, x2: cx, y1: fb, y2: top, stroke: "var(--bad)", "stroke-width": 1.6 }, g3);
+        el("path", { d: `M${cx - 4},${top - 4}L${cx + 4},${top + 4}M${cx + 4},${top - 4}L${cx - 4},${top + 4}`, stroke: "var(--bad)", "stroke-width": 2 }, g3);
       } else if (d === "recover") {
-        el("line", { x1: cx, x2: cx, y1: fb, y2: top + 5, stroke: "var(--blue)", "stroke-width": 2, "stroke-dasharray": "3 2.5" }, g3);
-        el("path", { d: `M${cx},${top - 5}L${cx + 5},${top}L${cx},${top + 5}L${cx - 5},${top}Z`, fill: "var(--card)", stroke: "var(--blue)", "stroke-width": 2 }, g3);
+        el("line", { x1: cx, x2: cx, y1: fb, y2: top + 5, stroke: "var(--recover)", "stroke-width": 2, "stroke-dasharray": "3 2.5" }, g3);
+        el("path", { d: `M${cx},${top - 5}L${cx + 5},${top}L${cx},${top + 5}L${cx - 5},${top}Z`, fill: "var(--card)", stroke: "var(--recover)", "stroke-width": 2 }, g3);
       } else {
         const col = d === "accept" ? "var(--ok)" : "var(--warn)";
         el("line", { x1: cx, x2: cx, y1: fb, y2: top, stroke: col, "stroke-width": 2.2 }, g3);
@@ -282,11 +296,11 @@
     // STRATA row
     const g4 = el("g", { class: "st4" }, svg);
     const [sy, sh] = R.strata, sc = sy + sh / 2;
-    el("rect", { x: G.x0, y: sy, width: G.pw, height: sh, rx: 4, fill: "var(--red-wash)" }, g4);
+    el("rect", { x: G.x0, y: sy, width: G.pw, height: sh, rx: 4, fill: "var(--accent-wash)" }, g4);
     ep.truth.forEach((t) => el("rect", { x: x(t - 1), y: sy - 2, width: x(t + 1) - x(t - 1), height: sh + 4, fill: "var(--ink-faint)", "fill-opacity": 0.16 }, g4));
     sets.kept.forEach((c, i) => {
-      if (sets.ms.mp.has(i)) el("circle", { cx: x(c.t), cy: sc, r: 5, fill: "var(--red)" }, g4);
-      else el("path", { d: `M${x(c.t) - 4.5},${sc - 4.5}L${x(c.t) + 4.5},${sc + 4.5}M${x(c.t) + 4.5},${sc - 4.5}L${x(c.t) - 4.5},${sc + 4.5}`, stroke: "var(--red)", "stroke-width": 2.2 }, g4);
+      if (sets.ms.mp.has(i)) el("circle", { cx: x(c.t), cy: sc, r: 5, fill: "var(--accent)" }, g4);
+      else el("path", { d: `M${x(c.t) - 4.5},${sc - 4.5}L${x(c.t) + 4.5},${sc + 4.5}M${x(c.t) + 4.5},${sc - 4.5}L${x(c.t) - 4.5},${sc + 4.5}`, stroke: "var(--bad)", "stroke-width": 2.2 }, g4);
     });
     ep.truth.forEach((t, j) => { if (!sets.ms.mg.has(j)) el("circle", { cx: x(t), cy: sc, r: 4.6, fill: "var(--card)", stroke: "var(--ink-faint)", "stroke-width": 1.8 }, g4); });
 
@@ -302,7 +316,7 @@
 
     // cursor + selection marker
     el("line", { id: "ex-cursor", x1: -10, x2: -10, y1: 0, y2: gBot, stroke: "var(--ink)", "stroke-width": 1, "stroke-opacity": 0.55, "pointer-events": "none" }, svg);
-    el("rect", { id: "ex-sel", x: -100, y: gTop - 2, width: 14, height: gBot - gTop + 4, rx: 7, fill: "var(--red)", "fill-opacity": 0.1, stroke: "var(--red)", "stroke-opacity": 0.5, "pointer-events": "none" }, svg);
+    el("rect", { id: "ex-sel", x: -100, y: gTop - 2, width: 14, height: gBot - gTop + 4, rx: 7, fill: "var(--accent)", "fill-opacity": 0.1, stroke: "var(--accent)", "stroke-opacity": 0.5, "pointer-events": "none" }, svg);
     applyStage();
     updateSide();
   }
@@ -468,19 +482,19 @@
         const row = h("div", { class: "drow" });
         row.innerHTML = `<span>${name}</span><div style="position:relative;height:30px">
           <div style="position:absolute;left:0;right:0;top:14px;height:2px;background:var(--paper-2);border-radius:2px"></div>
-          <div style="position:absolute;left:${lo}%;width:${hi - lo}%;top:14px;height:2px;background:color-mix(in srgb,var(--red) 55%,transparent)"></div>
+          <div style="position:absolute;left:${lo}%;width:${hi - lo}%;top:14px;height:2px;background:color-mix(in srgb,var(--accent) 55%,transparent)"></div>
           ${probe != null ? `<div title="best few-shot probe ${probe}" style="position:absolute;left:${pos(probe)}%;top:9px;width:12px;height:12px;margin-left:-6px;border-radius:50%;border:2px solid var(--ink-faint);background:var(--card)"></div>` : ""}
           <div style="position:absolute;left:${a}%;top:9px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--bar)"></div>
-          <div style="position:absolute;left:${b}%;top:8px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--red)"></div>
+          <div style="position:absolute;left:${b}%;top:8px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--accent)"></div>
           <span class="mono" style="position:absolute;left:${a}%;top:-6px;transform:translateX(-50%);font-size:11px;color:var(--ink-dim)">${raw.toFixed(1)}</span>
-          <span class="mono" style="position:absolute;left:${b}%;top:-6px;transform:translateX(-50%);font-size:11.5px;font-weight:600;color:var(--red-ink)">${ours.toFixed(1)}</span>
+          <span class="mono" style="position:absolute;left:${b}%;top:-6px;transform:translateX(-50%);font-size:11.5px;font-weight:600;color:var(--accent-ink)">${ours.toFixed(1)}</span>
         </div>`;
         wrap.appendChild(row);
       });
       if (si === 0) wrap.appendChild(h("div", { class: "legend", style: "font-size:12.5px;color:var(--ink-dim);margin-top:2px" },
         `<span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--bar)"></i>raw confidence</span>
          <span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid var(--ink-faint)"></i>best few-shot probe</span>
-         <span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--red)"></i>FOCUS</span>`));
+         <span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent)"></i>FOCUS</span>`));
       box.appendChild(wrap);
     });
   }
@@ -541,7 +555,7 @@
     $("#res-title").textContent = `${BENCH[res.bench]} · ${res.split === "ood" ? "unseen" : "seen"} tasks · F1 at ±${TOL[res.tol]} s`;
     const diff = tvf.v - best.v;
     $("#res-sub").innerHTML = diff >= 0
-      ? `TVF <b style="color:var(--red-ink)">+${diff.toFixed(1)}</b> over the best baseline (${best.name})`
+      ? `TVF <b style="color:var(--accent-ink)">+${diff.toFixed(1)}</b> over the best baseline (${best.name})`
       : `TVF ${diff.toFixed(1)} behind the best baseline (${best.name})`;
     const notes = [];
     if (res.split === "ood") notes.push("STRATA filters TVF's candidates with FOCUS and uses 5 labelled recordings of each unseen task; every other row uses no labels of the unseen task. Sources: Table 1; STRATA from Tables 2, 13 and 15.");
