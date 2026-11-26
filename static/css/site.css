@@ -51,6 +51,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }   /* the hidden attribute must beat component display rules (lightbox, optional figures) */
 html { scroll-behavior: smooth; }
 body {
   margin: 0; background: var(--paper); color: var(--ink); transition: background-color .3s, color .3s;
