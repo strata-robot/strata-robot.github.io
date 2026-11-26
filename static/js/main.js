@@ -710,8 +710,9 @@
   }));
 
   /* ---------------- humanoid dataset example ---------------- */
-  const HX = window.STRATA_HUMANOID;
-  const hx = { v: $("#hx-video"), svg: $("#hx-svg"), media: $("#hx .hx-media"), line: null, W: 0, x0: 0, pw: 0, cur: -2, user: false };
+  const HXALL = window.STRATA_HUMANOID;
+  let HX = HXALL && HXALL.tasks ? HXALL.tasks[HXALL.order[0]] : null;
+  const hx = { v: $("#hx-video"), svg: $("#hx-svg"), media: $("#hx .hx-media"), line: null, W: 0, x0: 0, pw: 0, cur: -2, user: false, seen: false };
   const hxColor = (g) => (g.label === "Idle" ? "var(--bar)" : `var(--s${g.k % 10})`);
   function drawHumanoid() {
     if (!HX || !hx.svg) return;
@@ -770,13 +771,30 @@
     }
   }
   function hxTick() { if (HX && hx.v && !hx.v.paused) hxUpdate(hx.v.currentTime * HX.speed); }
-  function initHumanoid() {
-    if (!HX || !hx.v) return;
+  function hxShow(key) {
+    HX = HXALL.tasks[key];
+    $$("#hx-tabs button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.task === key)));
+    $$("#hx .hx-cam").forEach((c, i) => { c.textContent = HX.cams[i] || ""; });
+    $("#hx-sub").textContent = `Example recording · ${HX.name}`;
+    $("#hx-note").textContent = HX.note;
     $("#hx-meta").innerHTML = [["Task", HX.task], ["Robot unit", HX.robot], ["Length", `${HX.duration.toFixed(1)} s`],
       ["Sub-tasks", `${HX.segments.length} (${HX.kinds.length} kinds)`], ["Joint state", `${HX.dof}-D at 30 Hz`],
-      ["Outcome", HX.status]].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+      ["Human review", HX.review]].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
     $("#hx-legend").innerHTML = HX.kinds.map((k, i) => `<span><i style="background:${hxColor({ label: k, k: i })}"></i>${k}</span>`).join("");
+    if (hx.v.getAttribute("src") !== HX.video) {
+      hx.v.pause();
+      hx.v.poster = HX.poster;
+      hx.v.src = HX.video;
+      hx.v.load();
+      if (hx.seen && !hx.user && !reduced) hx.v.play().catch(() => {});
+    }
     drawHumanoid();
+    hxUpdate(0, true);
+  }
+  function initHumanoid() {
+    if (!HX || !hx.v) return;
+    $$("#hx-tabs button").forEach((b) => b.addEventListener("click", () => hxShow(b.dataset.task)));
+    hxShow(HXALL.order[0]);
     const toggle = () => {
       if (hx.v.paused) { hx.user = false; hx.media.classList.remove("paused"); hx.v.play().catch(() => {}); }
       else { hx.user = true; hx.media.classList.add("paused"); hx.v.pause(); }
@@ -803,6 +821,7 @@
     });
     if ("IntersectionObserver" in window) {
       new IntersectionObserver((ents) => ents.forEach((en) => {
+        hx.seen = en.isIntersecting;
         if (en.isIntersecting && !hx.user && !reduced) hx.v.play().catch(() => {}); else if (!en.isIntersecting) hx.v.pause();
       }), { threshold: 0.3 }).observe($("#hx"));
     }

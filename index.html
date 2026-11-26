@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="static/css/site.css?v=7df57361">
+<link rel="stylesheet" href="static/css/site.css?v=3d75bd4a">
 <!--/HEAD-->
 </head>
 <body>
@@ -376,17 +376,24 @@
       <div class="stat"><div class="v num">31<small>DoF</small></div><div class="k">whole-body joint states and actions at 30 Hz, with 4 RGB views</div></div>
     </div>
 
+    <div class="hx-bar">
+      <p class="subhead">Two example recordings</p>
+      <div class="seg" role="group" aria-label="Example task" id="hx-tabs">
+        <button type="button" data-task="fold" aria-pressed="true">Cloth folding</button>
+        <button type="button" data-task="pnp" aria-pressed="false">Pick and place</button>
+      </div>
+    </div>
     <div class="hx" id="hx" data-optional-block>
       <div class="hx-media" role="button" tabindex="0" aria-label="Pause or play the dataset example">
         <video id="hx-video" muted loop playsinline preload="none" poster="static/video/humanoid_fold.jpg" src="static/video/humanoid_fold.mp4"></video>
         <span class="hx-cam" style="left:8px;top:8px">torso camera</span>
-        <span class="hx-cam" style="left:calc(66.67% + 6px);top:6px">head</span>
+        <span class="hx-cam" style="left:calc(66.67% + 6px);top:6px">head camera</span>
         <span class="hx-cam" style="left:calc(66.67% + 6px);top:calc(50% + 6px)">left wrist</span>
         <span class="vt hx-t" id="hx-t">0.0 s</span>
         <span class="vpause">Paused</span>
       </div>
       <div class="hx-side" aria-live="polite">
-        <p class="subhead">Example recording · fold clothes</p>
+        <p class="subhead" id="hx-sub">Example recording · cloth folding</p>
         <span class="hx-k" id="hx-k">Sub-task 1</span>
         <b class="hx-label" id="hx-label">Lay out</b>
         <p class="hx-text" id="hx-text">The garment is being laid out flat before the folding task begins.</p>
@@ -397,7 +404,7 @@
         <div class="hx-legend" id="hx-legend"></div>
       </div>
     </div>
-    <p class="note">One recording of the release (a single-colour shirt, robot unit m2v2.2#2), played at 2×. Three of its four camera views are shown; the right-wrist view is left out here because a bystander walks through its background. The timeline shows the annotated sub-tasks with their language descriptions and 6 of the 31 joint-state channels. Click or drag on the timeline to jump.</p>
+    <p class="note"><span id="hx-note"></span> Played at 2×. The timeline shows the annotated sub-tasks with their language descriptions and 6 of the 31 joint-state channels; click or drag on it to jump.</p>
 
     <div class="split">
       <div class="tscroll">
@@ -460,9 +467,9 @@
 <div class="lb" id="lb" hidden><button type="button" aria-label="Close">×</button><img alt=""></div>
 
 <script src="static/data/episodes.js?v=66536db0"></script>
-<script src="static/data/humanoid.js?v=8ea5a0af"></script>
+<script src="static/data/humanoid.js?v=0be99e62"></script>
 <script src="static/img/paper/extracted.js?v=afb7ae6a"></script>
-<script src="static/js/main.js?v=9062c6f0"></script>
+<script src="static/js/main.js?v=8bc7571d"></script>
 <!--/BODY-->
 </body>
 </html>
