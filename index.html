@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--HEAD-->
+<title>STRATA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="STRATA: sub-task boundary detection for long-horizon robot demonstrations via telemetry–vision fusion (TVF) and few-shot calibrated uncertainty scoring (FOCUS).">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='6' width='24' height='5' rx='1' fill='%23f2b38f'/%3E%3Crect x='4' y='13' width='24' height='5' rx='1' fill='%239cc3e6'/%3E%3Crect x='4' y='20' width='24' height='5' rx='1' fill='%23a9d18e'/%3E%3Crect x='15' y='3' width='2.5' height='26' fill='%23c8102e'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="static/css/site.css">
+<!--/HEAD-->
+</head>
+<body>
+<!--BODY-->
+
+<nav class="nav" id="nav" aria-label="Sections">
+  <div class="wrap">
+    <a class="brand" href="#top"><i></i>STRATA</a>
+    <ul>
+      <li><a href="#explore">Example</a></li>
+      <li><a href="#method">Method</a></li>
+      <li><a href="#results">Results</a></li>
+      <li class="opt"><a href="#humanoid">Dataset</a></li>
+      <li><a href="#cite">Cite</a></li>
+    </ul>
+  </div>
+  <div class="progress" id="progress"></div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="topline">
+      <span class="draft">Draft preview · do not share before the paper is public</span>
+      <div class="hero-place"><b>AgiBot World 2026 · unseen task</b>Pack a desk lamp · 73 s · scored with 5 labelled recordings</div>
+    </div>
+    <div class="eyebrow">Robot demonstration curation</div>
+    <h1 class="wordmark" aria-label="STRATA"><span>S</span><span>T</span><span>R</span><span>A</span><span>T</span><span>A</span></h1>
+    <p class="title-full">Sub-task boundary detection for long-horizon robot demonstrations via <em>telemetry–vision fusion</em></p>
+    <p class="lede"><b>TVF</b> finds where one sub-task ends and the next begins, from three camera views and the robot's own 30&nbsp;Hz telemetry. <b>FOCUS</b> then checks every boundary against a few labelled recordings of the new task and returns a calibrated probability: accept it, send it to review, or drop it.</p>
+
+    <div class="core" aria-label="Animated example: STRATA boundaries on one recording">
+      <div class="core-head"><span>robot state &nbsp;·&nbsp; ground-truth sub-tasks &nbsp;·&nbsp; boundaries STRATA keeps</span><span id="core-f1">TVF alone <b>F1 44</b> &nbsp;→&nbsp; STRATA <b>F1 94</b></span></div>
+      <svg id="core" role="img" aria-label="Telemetry traces and sub-task layers of a 73-second recording, with the boundaries STRATA keeps marked in red"></svg>
+      <div class="core-legend">
+        <span><i></i>kept, true boundary (P shown)</span>
+        <span><i class="d"></i>missed by TVF, recovered by FOCUS</span>
+        <span><i class="x"></i>TVF false alarm, rejected by FOCUS</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="people" id="people">
+  <div class="wrap">
+    <div class="names">Anonymous authors</div>
+    <div class="affil">Paper under double-blind review</div>
+    <div class="buttons">
+      <a class="btn primary" href="#explore">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>Explore an example</a>
+      <a class="btn soon" href="#" aria-disabled="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Paper <small>soon</small></a>
+      <a class="btn soon" href="#" aria-disabled="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>arXiv <small>soon</small></a>
+      <a class="btn soon" href="#" aria-disabled="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 8-5 4 5 4M16 8l5 4-5 4M14 4l-4 16"/></svg>Code <small>soon</small></a>
+      <a class="btn soon" href="#" aria-disabled="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Dataset <small>on acceptance</small></a>
+      <a class="btn" href="#cite">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h4v4H7zM7 11c0 3-1 5-3 6M15 7h4v4h-4zM15 11c0 3-1 5-3 6"/></svg>BibTeX</a>
+    </div>
+  </div>
+</div>
+
+<section class="abstract-sec" id="abstract">
+  <div class="wrap">
+    <div class="abstract-grid">
+      <div>
+        <div class="kicker">Abstract</div>
+        <div class="abstract-text">
+          <p>Scaling robot learning from heterogeneous demonstrations requires decomposing long-horizon trajectories into coherent sub-tasks, yet manual temporal annotation remains a major bottleneck for scalability. Automating this pipeline across diverse workflows demands boundary detectors that transfer to unseen tasks and reliably quantify their uncertainty to guide human-in-the-loop review. Existing detectors rely primarily on visual streams, leaving high-frequency robot proprioception underutilized and suffering sharp performance drops and miscalibrated confidence on unseen tasks. We address both challenges with <b>STRATA</b>, a unified framework comprising two components. First, <b>Telemetry-Vision Fusion (TVF)</b> aligns and selectively gates high-frequency proprioceptive telemetry into frozen visual representations, capturing fine-grained physical transitions that are otherwise missed by vision alone. Then, <b>Few-Shot Calibrated Uncertainty Scoring (FOCUS)</b> adapts uncertainty estimates to unseen tasks using a small annotated support set, comparing candidate boundaries against task-specific matched and spurious exemplars via hierarchical Bayesian calibration. Across three public manipulation benchmarks and a new whole-body humanoid manipulation dataset, which we will publicly release, TVF improves zero-shot boundary F1@0.5s on unseen tasks over the SOTA baseline by 2.5, 10.6, and 13.7 percentage points on AgiBot World Alpha, AgiBot World 2026, and Galaxea Open-World, respectively, while remaining competitive on in-distribution tasks. Concurrently, FOCUS improves error-detection AUROC on unseen tasks from 0.60–0.67 (raw confidence) to 0.75–0.84, delivering calibrated existence probabilities, predictive timing intervals, and false-discovery-rate control for selective auto-acceptance. Together, STRATA allows for an accurate and scalable human-in-the-loop data annotation process.</p>
+        </div>
+      </div>
+      <div>
+        <div class="kicker">In numbers</div>
+        <ul class="claims">
+          <li><span class="big num">+13.7<small>pts</small></span><p><b>Boundary F1@0.5&nbsp;s on unseen Galaxea tasks</b> over the strongest baseline (TVF 30.5 vs. DiGIT 16.8). +10.6 on AgiBot World 2026, +2.5 on AgiBot World Alpha.</p></li>
+          <li><span class="big num">0.84</span><p><b>Error-detection AUROC with FOCUS</b> on AgiBot World 2026, from 0.67 with raw confidence. Post-hoc calibrators cannot move it: they keep the ranking.</p></li>
+          <li><span class="big num">≤8<small>%</small></span><p><b>False discoveries among auto-accepted boundaries</b> with conformal selection at α&nbsp;=&nbsp;0.1 (4 / 8 / 3% on the three benchmarks).</p></li>
+          <li><span class="big num">100<small>h</small></span><p><b>Whole-body humanoid recordings</b> with 43,829 annotated sub-task boundaries, to be released.</p></li>
+        </ul>
+      </div>
+    </div>
+
+    <figure class="fig" data-optional-block>
+      <img src="static/img/paper/fig1_overview.webp" alt="Overview of STRATA: vision and telemetry streams enter TVF, which outputs candidate boundaries; FOCUS turns them into calibrated boundaries that are accepted, reviewed, rejected or recovered." loading="lazy" data-optional data-zoom>
+      <figcaption><b>Figure 1. Overview of STRATA.</b> Given long-horizon robotic data, STRATA fuses multi-view video and high-frequency proprioception to identify sub-task temporal transitions alongside calibrated probabilities, enabling reliable automatic data curation and selective human-in-the-loop auditing.<span class="standin" data-standin="fig1_overview">older render, replace from PDF</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="explore">
+  <div class="wrap">
+    <div class="kicker">One recording, step by step</div>
+    <h2>A long demonstration is a stack of sub-tasks. <em>Where do they change?</em></h2>
+    <p class="intro">Two recordings from AgiBot World 2026 RL tasks that no model saw in training. Step through the pipeline, then hover or tap the timeline to see the frame, the sub-task, and what FOCUS decided about each candidate boundary. Use the arrow keys to jump between candidates.</p>
+
+    <div class="ex" id="ex">
+      <div class="ex-bar">
+        <div class="seg" role="group" aria-label="Recording" id="ex-eps"></div>
+        <div class="steps" role="group" aria-label="Pipeline step" id="ex-steps">
+          <button type="button" data-stage="1" aria-pressed="false"><b>1</b>Recording</button>
+          <button type="button" data-stage="2" aria-pressed="false"><b>2</b>TVF detects</button>
+          <button type="button" data-stage="3" aria-pressed="false"><b>3</b>FOCUS scores</button>
+          <button type="button" data-stage="4" aria-pressed="true"><b>4</b>STRATA keeps</button>
+        </div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-plot" id="ex-plot"><svg id="ex-svg" tabindex="0" aria-label="Timeline of the selected recording"></svg></div>
+        <aside class="ex-side" aria-live="polite">
+          <div class="ex-frame"><img id="ex-img" alt="Head-camera frame at the selected time"><span class="t" id="ex-t">0.0 s</span><span class="note" id="ex-note"></span></div>
+          <div class="ex-sub" id="ex-sub"></div>
+          <div class="ex-cand" id="ex-cand"></div>
+        </aside>
+      </div>
+      <div class="ex-foot">
+        <div class="legend" aria-hidden="true">
+          <span><svg viewBox="0 0 14 14"><line x1="7" y1="13" x2="7" y2="3" stroke="var(--red)" stroke-width="2"/><circle cx="7" cy="3" r="2.6" fill="var(--red)"/></svg>TVF boundary</span>
+          <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="4" fill="var(--ok)"/></svg>accept (P ≥ .9)</span>
+          <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="4" fill="var(--warn)"/></svg>review (.5 ≤ P &lt; .9)</span>
+          <span><svg viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" stroke="var(--ink-faint)" stroke-width="2"/></svg>reject (P &lt; .5)</span>
+          <span><svg viewBox="0 0 14 14"><path d="M7 2l5 5-5 5-5-5z" fill="none" stroke="var(--blue)" stroke-width="1.8"/></svg>recovered miss</span>
+          <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="4" fill="none" stroke="var(--ink-faint)" stroke-width="1.6"/></svg>missed</span>
+        </div>
+        <div class="f1s" id="ex-f1"></div>
+      </div>
+    </div>
+    <p class="note">These recordings were chosen to show the pipeline clearly. FOCUS uses five labelled recordings of the same task, none of them shown here. Averages over all unseen tasks are under <a href="#results">Results</a>.</p>
+    <details class="paperfig" data-optional-block>
+      <summary>Show the paper figure (Fig. 9)</summary>
+      <figure class="fig"><img src="static/img/paper/fig9_example.webp" alt="Paper Figure 9: the same desk-lamp recording with TVF, FOCUS and STRATA rows and three zoomed examples." loading="lazy" data-optional data-zoom>
+        <figcaption><b>Figure 9.</b> Qualitative examples of the STRATA pipeline.</figcaption></figure>
+    </details>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <div class="kicker">How it works</div>
+    <h2>A detector that reads the robot, and a check that <em>learns the new task</em></h2>
+    <p class="intro">STRATA pairs a multimodal boundary detector trained on source tasks with a few-shot calibrator that adapts to each unseen task from <b>L&nbsp;=&nbsp;5</b> labelled recordings, without retraining the detector.</p>
+    <figure class="fig" data-optional-block>
+      <img src="static/img/paper/fig2_pipeline.webp" alt="Figure 2: TVF (top) encodes multi-view video and telemetry, fuses them with a residual gate and decodes boundaries with a multiscale pyramid; FOCUS (bottom) scores each candidate with self-confidence, temporal coherence and exemplar similarity, then calibrates it with a hierarchical prior." loading="lazy" data-optional data-zoom>
+      <figcaption><b>Figure 2. Overview of STRATA.</b> <i>Top (TVF):</i> multi-view video and continuous proprioceptive telemetry are encoded in parallel, selectively fused via residual gating to capture physical transition cues, and decoded across multiple temporal scales. <i>Bottom (FOCUS):</i> on an unseen task, each candidate boundary is compared with matched and spurious exemplars from a few labelled demonstrations, then calibrated with a hierarchical prior shared across tasks into an existence probability and a time interval.<span class="standin" data-standin="fig2_pipeline">older render, replace from PDF</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="tvf">
+  <div class="wrap">
+    <div class="kicker"><span class="step">Step 1</span> TVF · Telemetry-Vision Fusion</div>
+    <h2>Cameras show <em>what</em> is happening. Telemetry shows <em>when</em> it changes.</h2>
+    <p class="intro">Visual appearance changes a lot from task to task. Contact and gripper actuation leave short, largely task-invariant marks in the joint signals. TVF keeps those high-frequency cues instead of averaging them away.</p>
+    <div class="two">
+      <div class="card">
+        <span class="tagline">encode at native rates</span>
+        <h3>Two streams, one clock</h3>
+        <p>Three camera views go through frozen DINOv3 at 2&nbsp;Hz, a spatial Transformer across views and a temporal Transformer. The 30&nbsp;Hz robot state and its differences go through 1D convolutions, then mean <i>and</i> max pooling onto the same 0.5&nbsp;s ticks, so sharp kinematic spikes survive.</p>
+      </div>
+      <div class="card">
+        <span class="tagline">gate per tick</span>
+        <h3>Telemetry gates vision</h3>
+        <p>A learned residual gate decides, tick by tick, how much telemetry to add to the visual token. Vision stays the base representation. Telemetry joins in during physical transitions, when the gripper often blocks the camera.</p>
+        <div class="eq">g<sub>τ</sub> = σ(W<sub>g</sub>[v<sub>τ</sub>; m<sub>τ</sub>]),&nbsp; f<sub>τ</sub> = v<sub>τ</sub> + g<sub>τ</sub> ⊙ m<sub>τ</sub></div>
+      </div>
+      <div class="card">
+        <span class="tagline">decode at three scales</span>
+        <h3>Context and precision</h3>
+        <p>A multiscale Transformer pyramid sees seconds of context. At each tick the head predicts a confidence and a distribution over sub-tick offsets. Overlapping 9&nbsp;s windows are merged across the whole recording into candidate boundaries.</p>
+      </div>
+    </div>
+
+    <div class="split">
+      <div>
+        <p class="subhead">Which input carries the signal?</p>
+        <div class="bars" id="abl"></div>
+        <p class="note">Table 5 · Galaxea Open-World, 36 unseen task families, boundary F1@1&nbsp;s (%). Without telemetry, F1 drops by 11.2 points. Telemetry alone beats both vision-only variants.</p>
+      </div>
+      <div>
+        <p class="subhead">Fast enough for whole archives</p>
+        <div class="stats" style="margin-top:0; grid-template-columns: repeat(2, minmax(0,1fr));">
+          <div class="stat"><div class="v num">7.97<small>×</small></div><div class="k">real time on one RTX 5090 (7.53&nbsp;s per minute of video)</div></div>
+          <div class="stat"><div class="v num">40.1<small>M</small></div><div class="k">trainable parameters; the DINOv3 backbone stays frozen</div></div>
+        </div>
+        <figure class="fig" data-optional-block style="margin-top:18px">
+          <img src="static/img/paper/fig4_pareto.webp" alt="Figure 4: accuracy versus throughput on AgiBot World Alpha; TVF is on the Pareto frontier for unseen tasks." loading="lazy" data-optional data-zoom>
+          <figcaption><b>Figure 4.</b> Accuracy–throughput Pareto frontier on AgiBot World Alpha.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="focus">
+  <div class="wrap">
+    <div class="kicker"><span class="step">Step 2</span> FOCUS · Few-Shot Calibrated Uncertainty Scoring</div>
+    <h2>Five labelled recordings show <em>which boundaries to trust</em></h2>
+    <p class="intro">On a new task, a detector's confidence stops meaning much: even among detections with confidence ≥&nbsp;0.9, 18–37% are spurious. A calibrator that rescales one score cannot reorder candidates inside a task. FOCUS adds evidence that can.</p>
+
+    <div class="flow">
+      <div class="ev">
+        <div><i>φ</i><b>Self-confidence</b><span>TVF's own score, as log-odds</span></div>
+        <div><i>ψ</i><b>Temporal coherence</b><span>does it fit the recording's structure? A BiGRU trained once on source tasks. It also proposes boundaries TVF missed.</span></div>
+        <div><i>Λ</i><b>Exemplar similarity</b><span>does it look like the task's matched boundaries or its recurring false alarms?</span></div>
+      </div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="box"><b>Reliability score</b><span>s<sub>k</sub> = φ(c<sub>k</sub>) + ψ(g<sub>k</sub>) + Λ(e<sub>k</sub>, M, W)</span>
+        <div style="height:12px"></div>
+        <b>Task calibration</b><span>logistic map with a cross-task Gaussian prior, updated on the support set by a Laplace approximation; timing by a truncated Student-t</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="box"><b>Probability P that the boundary is real</b>
+        <div class="scale" aria-label="Decision bands on P">
+          <div class="band"><div>reject</div><div>review</div><div>accept</div></div>
+          <div class="ticks"><span style="left:0">0</span><span style="left:50%">.5</span><span style="left:90%">.9</span><span style="left:100%">1</span></div>
+        </div>
+        <span>plus a 90% timing interval, and conformal selection that caps the false-discovery rate of auto-accepted boundaries</span></div>
+    </div>
+
+    <div class="split">
+      <div>
+        <p class="subhead">Ranking errors on unseen tasks</p>
+        <div class="dumb" id="dumb"></div>
+        <p class="note">Table 2 · task-macro within-task AUROC on confident TVF detections, ECE, and boundary F1@1&nbsp;s after filtering; L&nbsp;=&nbsp;5 labelled recordings per task, 20 random draws.</p>
+      </div>
+      <div>
+        <p class="subhead">Auto-accept with a false-discovery budget</p>
+        <div class="tscroll">
+          <table class="t" aria-label="Benjamini–Hochberg auto-acceptance at alpha 0.1">
+            <thead><tr><th>α = 0.1</th><th>Alpha</th><th>AgiBot 2026</th><th>Galaxea</th></tr></thead>
+            <tbody>
+              <tr><td>Recall, raw + BH</td><td>14%</td><td>32%</td><td>5%</td></tr>
+              <tr class="ours"><td>Recall, FOCUS + BH</td><td class="best">21%</td><td class="best">47%</td><td class="best">11%</td></tr>
+              <tr><td>Realised FDR, FOCUS</td><td>4%</td><td>8%</td><td>3%</td></tr>
+              <tr><td>ECE at ±0.5 s, q<sub>k</sub>(0.5)</td><td>2.8</td><td>1.3</td><td>0.7</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Table 3 · recall is the share of true boundaries accepted without review. The FDR stays under the 10% budget on average; it is approximate because candidates in one recording are correlated.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <div class="kicker">Results</div>
+    <h2>Best on unseen tasks, <em>competitive on seen ones</em></h2>
+    <p class="intro">Class-agnostic boundary F1, task-macro over full recordings, against 13 baselines from four families: temporal action segmentation (TAS), temporal action detection (TAD), generic event boundary detection (GEBD), and robot-specific segmenters. Every model is scored the same way.</p>
+
+    <div class="controls" id="res-controls">
+      <span class="lbl">Benchmark</span>
+      <div class="seg" role="group" aria-label="Benchmark" data-key="bench">
+        <button type="button" data-v="alpha" aria-pressed="false">AgiBot World Alpha</button>
+        <button type="button" data-v="ag26" aria-pressed="true">AgiBot World 2026</button>
+        <button type="button" data-v="gx" aria-pressed="false">Galaxea Open-World</button>
+      </div>
+      <span class="lbl">Tasks</span>
+      <div class="seg" role="group" aria-label="Seen or unseen tasks" data-key="split">
+        <button type="button" data-v="ood" aria-pressed="true">Unseen</button>
+        <button type="button" data-v="id" aria-pressed="false">Seen</button>
+      </div>
+      <span class="lbl">Tolerance</span>
+      <div class="seg" role="group" aria-label="Matching tolerance" data-key="tol">
+        <button type="button" data-v="0" aria-pressed="false">±0.5 s</button>
+        <button type="button" data-v="1" aria-pressed="true">±1 s</button>
+        <button type="button" data-v="2" aria-pressed="false">±1.5 s</button>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title"><h3 id="res-title"></h3><span id="res-sub"></span></div>
+      <div class="bars" id="res-bars"></div>
+      <p class="note" id="res-note"></p>
+    </div>
+
+    <div class="bench">
+      <div class="card"><h3>AgiBot World Alpha</h3><dl>
+        <dt>Robot</dt><dd>AgiBot G1, 3 views</dd><dt>Recordings</dt><dd>15,366 (251 h)</dd>
+        <dt>Seen / unseen tasks</dt><dd>18 / 9</dd></dl></div>
+      <div class="card"><h3>AgiBot World 2026</h3><dl>
+        <dt>Robot</dt><dd>AgiBot G2, 3 views</dd><dt>Recordings</dt><dd>11,494 (269 h)</dd>
+        <dt>Seen / unseen tasks</dt><dd>8 / 5</dd></dl></div>
+      <div class="card"><h3>Galaxea Open-World</h3><dl>
+        <dt>Robot</dt><dd>Galaxea R1 Lite, 3 views</dd><dt>Recordings</dt><dd>18,479 (444 h)</dd>
+        <dt>Seen / unseen tasks</dt><dd>142 / 36</dd></dl></div>
+    </div>
+
+    <div data-optional-block id="gallery">
+      <div class="gallery-tabs">
+        <span class="lbl" style="font:600 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-right:10px">Zero-shot examples</span>
+        <div class="seg" role="group" aria-label="Qualitative figure" id="gal-tabs">
+          <button type="button" data-fig="fig5_alpha" aria-pressed="true">Alpha</button>
+          <button type="button" data-fig="fig6_agibot2026" aria-pressed="false">AgiBot 2026</button>
+          <button type="button" data-fig="fig7_galaxea" aria-pressed="false">Galaxea</button>
+          <button type="button" data-fig="fig8_humanoid" aria-pressed="false">Humanoid</button>
+        </div>
+      </div>
+      <figure class="fig" style="margin-top:16px">
+        <img id="gal-img" src="static/img/paper/fig5_alpha.webp" alt="Full-recording boundary predictions of TVF, DiGIT and Flora on unseen tasks." loading="lazy" data-optional data-zoom>
+        <figcaption id="gal-cap"><b>Figures 5–8.</b> Full-recording predictions of TVF, DiGIT and Flora on unseen tasks.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="humanoid">
+  <div class="wrap">
+    <div class="kicker">New dataset</div>
+    <h2>100 hours of <em>whole-body humanoid</em> manipulation, cut into sub-tasks</h2>
+    <p class="intro">Most robot datasets show wheeled mobile manipulators. Ours records a full-body humanoid on long tasks, with dense demonstrations per task: execution variability, fine transition timing, and cross-robot transfer can all be studied in a controlled way. Every sub-task segment comes with a natural-language description. Release on acceptance.</p>
+    <div class="stats">
+      <div class="stat"><div class="v num">100<small>h</small></div><div class="k">50 h pick and place, 50 h cloth folding</div></div>
+      <div class="stat"><div class="v num">2,818</div><div class="k">recordings, median 119 s long</div></div>
+      <div class="stat"><div class="v num">43,829</div><div class="k">annotated sub-task boundaries, 15.6 per recording</div></div>
+      <div class="stat"><div class="v num">31<small>DoF</small></div><div class="k">whole-body joint states and actions at 30 Hz, with 4 RGB views</div></div>
+    </div>
+    <div class="split">
+      <div class="tscroll">
+        <table class="t" aria-label="Humanoid dataset statistics">
+          <thead><tr><th>Table 8</th><th>Pick and place</th><th>Cloth folding</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr><td>Objects</td><td>rigid</td><td>deformable</td><td>–</td></tr>
+            <tr><td>Recordings</td><td>1,153</td><td>1,665</td><td>2,818</td></tr>
+            <tr><td>Hours</td><td>50.0</td><td>50.0</td><td>100.0</td></tr>
+            <tr><td>Median length (s)</td><td>140</td><td>96</td><td>119</td></tr>
+            <tr><td>Boundaries / recording</td><td>20.6</td><td>12.1</td><td>15.6</td></tr>
+            <tr><td>Median sub-task (s)</td><td>6.7</td><td>4.9</td><td>6.0</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Cameras: head and torso (640×400), left and right wrists (640×480), all at 30 Hz.</p>
+      </div>
+      <div>
+        <p class="subhead">Transfer from Galaxea to the humanoid · F1@1 s</p>
+        <div class="tscroll">
+          <table class="t" aria-label="Cross-embodiment transfer">
+            <thead><tr><th>Table 4</th><th>Zero-shot</th><th>Fine-tuned, 10 h</th></tr></thead>
+            <tbody>
+              <tr><td>ActionFormer</td><td>6.1</td><td>57.3</td></tr>
+              <tr><td>RoboSegNet</td><td>17.5</td><td>59.8</td></tr>
+              <tr><td>Flora <span style="color:var(--ink-faint)">(9B VLM)</span></td><td class="best">35.0</td><td>–</td></tr>
+              <tr class="ours"><td>TVF</td><td>26.0</td><td class="best">68.6</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Telemetry shifts across robot bodies, so zero-shot TVF trails Flora, a far larger vision-language model. With 10 h of humanoid data, TVF is best at every tolerance.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cite">
+  <div class="wrap narrow">
+    <div class="kicker">Citation</div>
+    <h2>Cite this work</h2>
+    <div class="bib">
+      <button type="button" id="copy-bib">Copy</button>
+<pre id="bib"><span class="k">@inproceedings</span>{strata2027,
+  <span class="f">title</span>     = {STRATA: Sub-Task Boundary Detection for Long-Horizon
+               Robot Demonstrations via Telemetry-Vision Fusion},
+  <span class="f">author</span>    = {Anonymous},
+  <span class="f">booktitle</span> = {Under review},
+  <span class="f">year</span>      = {2026}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>STRATA · project page draft</span>
+    <span>Benchmarks: AgiBot World Alpha, AgiBot World 2026, Galaxea Open-World</span>
+  </div>
+</footer>
+
+<div class="lb" id="lb" hidden><button type="button" aria-label="Close">×</button><img alt=""></div>
+
+<script src="static/data/episodes.js"></script>
+<script src="static/img/paper/extracted.js"></script>
+<script src="static/js/main.js"></script>
+<!--/BODY-->
+</body>
+</html>
