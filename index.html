@@ -218,11 +218,37 @@
           <div class="stat"><div class="v num">7.97<small>×</small></div><div class="k">real time on one RTX 5090 (7.53&nbsp;s per minute of video)</div></div>
           <div class="stat"><div class="v num">40.1<small>M</small></div><div class="k">trainable parameters; the DINOv3 backbone stays frozen</div></div>
         </div>
-        <figure class="fig" data-optional-block style="margin-top:18px">
-          <img src="static/img/paper/fig4_pareto.webp" alt="Figure 4: accuracy versus throughput on AgiBot World Alpha; TVF is on the Pareto frontier for unseen tasks." loading="lazy" data-optional data-zoom>
-          <figcaption><b>Figure 4.</b> Accuracy–throughput Pareto frontier on AgiBot World Alpha.</figcaption>
-        </figure>
       </div>
+    </div>
+
+    <div class="pareto" data-optional-block>
+      <div class="pareto-head">
+        <div>
+          <p class="subhead">Accuracy against speed · AgiBot World Alpha · Fig. 4</p>
+          <h3 class="pareto-title" id="pareto-title">On unseen tasks, TVF is the most accurate model, at 8× real time</h3>
+        </div>
+        <div class="seg" role="group" aria-label="Seen or unseen tasks" id="pareto-tabs">
+          <button type="button" data-p="ood" aria-pressed="true">Unseen tasks</button>
+          <button type="button" data-p="id" aria-pressed="false">Seen tasks</button>
+        </div>
+      </div>
+      <ul class="pareto-facts" id="pareto-facts">
+        <li><div class="v num">62.4</div><div class="k">boundary F1@1&nbsp;s on the 9 unseen tasks, the highest of all 14 models</div></li>
+        <li><div class="v num">+1.7</div><div class="k">over DiGIT (60.7), the next most accurate model, which is also slower</div></li>
+        <li><div class="v num">+8.8</div><div class="k">over RoboSegNet (53.6), the most accurate model that runs faster than TVF</div></li>
+      </ul>
+      <figure class="fig pareto-fig">
+        <img id="pareto-img" src="static/img/paper/fig4_ood.webp" alt="Figure 4, unseen tasks: boundary F1 against throughput. TVF sits at the top of the Pareto frontier at about 8 times real time; ActionFormer, DiGIT and TriDet are lower and slower; RoboSegNet and EfficientGEBD are faster but less accurate; Flora is slower than real time." loading="lazy" data-optional data-zoom>
+        <div class="pareto-legend" aria-label="Legend">
+          <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="#5d6b80"/></svg>Temporal action segmentation</span>
+          <span><svg viewBox="0 0 14 14"><rect x="2" y="2" width="10" height="10" fill="#d9730d"/></svg>Temporal action detection</span>
+          <span><svg viewBox="0 0 14 14"><path d="M7 1.5 13 12.5H1z" fill="#139c8c"/></svg>Generic event boundary detection</span>
+          <span><svg viewBox="0 0 14 14"><path d="M7 1 13 7 7 13 1 7z" fill="#7c3aed"/></svg>Robot-specific</span>
+          <span><svg viewBox="0 0 14 14"><path d="M7 .8l1.9 4 4.4.5-3.2 3 .9 4.4L7 10.5l-4 2.2.9-4.4-3.2-3 4.4-.5z" fill="#2563eb"/></svg>TVF (ours)</span>
+          <span><svg viewBox="0 0 22 14"><path d="M1 7h20" stroke="#4b5563" stroke-width="2" stroke-dasharray="4 3"/></svg>Pareto frontier</span>
+        </div>
+        <figcaption id="pareto-cap"><b>Figure 4, unseen tasks.</b> Boundary F1@1&nbsp;s on the 9 unseen AgiBot World Alpha tasks against end-to-end throughput on one RTX 5090 (log scale; right is faster). Click to enlarge.</figcaption>
+      </figure>
     </div>
   </div>
 </section>

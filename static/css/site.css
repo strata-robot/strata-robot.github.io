@@ -351,6 +351,29 @@ details.paperfig[open] summary::before { content: "–"; }
 @media (max-width: 560px) { .brow { grid-template-columns: 112px minmax(0, 1fr) 42px; font-size: 13px; } .brow .name small { display: none; } }
 .note { font-size: 13px; color: var(--ink-faint); margin-top: 12px; }
 
+/* Fig. 4: accuracy vs speed, shown large */
+.pareto { margin-top: 64px; }
+.pareto-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.pareto-head > div:first-child { min-width: 0; }
+.pareto-title { font: 700 clamp(22px, 2.5vw, 32px)/1.18 var(--display); margin: 0; max-width: 30ch; letter-spacing: -.01em; }
+.pareto-facts { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.pareto-facts li { padding: 18px 18px 16px 0; min-width: 0; }
+.pareto-facts li + li { padding-left: 18px; border-left: 1px solid var(--rule); }
+.pareto-facts .v { font: 700 clamp(30px, 3.4vw, 44px)/1 var(--display); color: var(--accent); }
+.pareto-facts .k { margin-top: 8px; font-size: 14px; color: var(--ink-dim); }
+.pareto-fig { margin-top: 22px; padding: 26px 26px 20px; }
+.pareto-fig #pareto-img { max-width: 980px; margin: 0 auto; }
+.pareto-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; margin: 16px auto 0; max-width: 980px; font: 400 14px/1.3 Georgia, "Times New Roman", serif; color: #2b3440; }
+.pareto-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.pareto-legend svg { width: 14px; height: 14px; flex: none; }
+.pareto-legend span:last-child svg { width: 22px; }
+.pareto-fig figcaption { max-width: 980px; margin-left: auto; margin-right: auto; }
+@media (max-width: 760px) {
+  .pareto-facts { grid-template-columns: 1fr; }
+  .pareto-facts li + li { padding-left: 0; border-left: 0; border-top: 1px solid var(--rule); }
+  .pareto-fig { padding: 14px; }
+}
+
 /* FOCUS flow */
 .flow { display: grid; grid-template-columns: minmax(0, 1.05fr) auto minmax(0, .9fr) auto minmax(0, 1fr); gap: 10px; align-items: center; margin-top: 32px; }
 .flow > * { min-width: 0; }

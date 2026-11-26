@@ -709,6 +709,37 @@
     $("#gal-cap").innerHTML = GAL[b.dataset.fig];
   }));
 
+  /* ---------------- Fig. 4: unseen / seen switch ---------------- */
+  const PARETO = {
+    ood: {
+      src: "static/img/paper/fig4_ood.webp",
+      title: "On unseen tasks, TVF is the most accurate model, at 8× real time",
+      facts: [["62.4", "boundary F1@1&nbsp;s on the 9 unseen tasks, the highest of all 14 models"],
+              ["+1.7", "over DiGIT (60.7), the next most accurate model, which is also slower"],
+              ["+8.8", "over RoboSegNet (53.6), the most accurate model that runs faster than TVF"]],
+      cap: "<b>Figure 4, unseen tasks.</b> Boundary F1@1&nbsp;s on the 9 unseen AgiBot World Alpha tasks against end-to-end throughput on one RTX 5090 (log scale; right is faster). Click to enlarge.",
+      alt: "Figure 4, unseen tasks: TVF sits at the top of the Pareto frontier at about 8 times real time; ActionFormer, DiGIT and TriDet are lower and slower; RoboSegNet and EfficientGEBD are faster but less accurate.",
+    },
+    id: {
+      src: "static/img/paper/fig4_id.webp",
+      title: "On seen tasks, TVF keeps pace with the best detectors and runs faster",
+      facts: [["93.8", "boundary F1@1&nbsp;s on the 18 seen tasks"],
+              ["−0.5", "from the best, TriDet (94.3); ActionFormer and DiGIT are at 93.8 and 94.0"],
+              ["7.97×", "real time on one RTX 5090: a minute of video in 7.53&nbsp;s, faster than all three"]],
+      cap: "<b>Figure 4, seen tasks.</b> Boundary F1@1&nbsp;s on the 18 seen AgiBot World Alpha tasks against end-to-end throughput on one RTX 5090 (log scale; right is faster). Click to enlarge.",
+      alt: "Figure 4, seen tasks: TriDet, ActionFormer and DiGIT reach about 94 F1 at about 4.5 times real time; TVF reaches 93.8 at about 8 times real time and lies on the Pareto frontier.",
+    },
+  };
+  $$("#pareto-tabs button").forEach((b) => b.addEventListener("click", () => {
+    const P = PARETO[b.dataset.p];
+    $$("#pareto-tabs button").forEach((o) => o.setAttribute("aria-pressed", String(o === b)));
+    const img = $("#pareto-img");
+    img.src = P.src; img.alt = P.alt;
+    $("#pareto-title").textContent = P.title;
+    $("#pareto-cap").innerHTML = P.cap;
+    $("#pareto-facts").innerHTML = P.facts.map(([v, k]) => `<li><div class="v num">${v}</div><div class="k">${k}</div></li>`).join("");
+  }));
+
   /* ---------------- BibTeX ---------------- */
   const cp = $("#copy-bib");
   if (cp) cp.addEventListener("click", () => {
