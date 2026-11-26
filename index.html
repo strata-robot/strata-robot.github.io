@@ -375,6 +375,30 @@
       <div class="stat"><div class="v num">43,829</div><div class="k">annotated sub-task boundaries, 15.6 per recording</div></div>
       <div class="stat"><div class="v num">31<small>DoF</small></div><div class="k">whole-body joint states and actions at 30 Hz, with 4 RGB views</div></div>
     </div>
+
+    <div class="hx" id="hx" data-optional-block>
+      <div class="hx-media" role="button" tabindex="0" aria-label="Pause or play the dataset example">
+        <video id="hx-video" muted loop playsinline preload="none" poster="static/video/humanoid_fold.jpg" src="static/video/humanoid_fold.mp4"></video>
+        <span class="hx-cam" style="left:8px;top:8px">torso camera</span>
+        <span class="hx-cam" style="left:calc(66.67% + 6px);top:6px">head</span>
+        <span class="hx-cam" style="left:calc(66.67% + 6px);top:calc(50% + 6px)">left wrist</span>
+        <span class="vt hx-t" id="hx-t">0.0 s</span>
+        <span class="vpause">Paused</span>
+      </div>
+      <div class="hx-side" aria-live="polite">
+        <p class="subhead">Example recording · fold clothes</p>
+        <span class="hx-k" id="hx-k">Sub-task 1</span>
+        <b class="hx-label" id="hx-label">Lay out</b>
+        <p class="hx-text" id="hx-text">The garment is being laid out flat before the folding task begins.</p>
+        <dl class="hx-meta" id="hx-meta"></dl>
+      </div>
+      <div class="hx-tl">
+        <svg id="hx-svg" tabindex="0" aria-label="Annotated sub-tasks and joint-state traces of the example recording; click to jump"></svg>
+        <div class="hx-legend" id="hx-legend"></div>
+      </div>
+    </div>
+    <p class="note">One recording of the release (a single-colour shirt, robot unit m2v2.2#2), played at 2×. Three of its four camera views are shown; the right-wrist view is left out here because a bystander walks through its background. The timeline shows the annotated sub-tasks with their language descriptions and 6 of the 31 joint-state channels. Click or drag on the timeline to jump.</p>
+
     <div class="split">
       <div class="tscroll">
         <table class="t" aria-label="Humanoid dataset statistics">
@@ -436,6 +460,7 @@
 <div class="lb" id="lb" hidden><button type="button" aria-label="Close">×</button><img alt=""></div>
 
 <script src="static/data/episodes.js"></script>
+<script src="static/data/humanoid.js"></script>
 <script src="static/img/paper/extracted.js"></script>
 <script src="static/js/main.js"></script>
 <!--/BODY-->

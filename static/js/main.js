@@ -709,6 +709,105 @@
     $("#gal-cap").innerHTML = GAL[b.dataset.fig];
   }));
 
+  /* ---------------- humanoid dataset example ---------------- */
+  const HX = window.STRATA_HUMANOID;
+  const hx = { v: $("#hx-video"), svg: $("#hx-svg"), media: $("#hx .hx-media"), line: null, W: 0, x0: 0, pw: 0, cur: -2, user: false };
+  const hxColor = (g) => (g.label === "Idle" ? "var(--bar)" : `var(--s${g.k % 10})`);
+  function drawHumanoid() {
+    if (!HX || !hx.svg) return;
+    const W = Math.max(300, hx.svg.parentElement.clientWidth - 32), D = HX.duration;
+    const LW = W < 520 ? 0 : 84, x0 = LW, pw = W - LW - 4;
+    const x = (t) => x0 + (t / D) * pw;
+    const svg = hx.svg;
+    svg.innerHTML = "";
+    const sy = 0, sh = 30, ty = 42, th = 62, ay = ty + th + 14, H = ay + 8;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.setAttribute("height", H);
+    if (LW) {
+      [["sub-tasks", sy + sh / 2 + 4], ["joint state", ty + th / 2 + 4]].forEach(([t, y]) => {
+        const e = el("text", { x: 0, y, "font-size": 11.5, fill: "var(--ink-dim)" }, svg); e.textContent = t;
+      });
+    }
+    HX.segments.forEach((g) => {
+      el("rect", { x: x(g.s) + 0.5, y: sy, width: Math.max(1, x(g.e) - x(g.s) - 1), height: sh, rx: 3, fill: hxColor(g) }, svg);
+      if (x(g.e) - x(g.s) > g.label.length * 6.1 + 8) {
+        const e = el("text", { x: (x(g.s) + x(g.e)) / 2, y: sy + sh / 2 + 4, "text-anchor": "middle", "font-size": 11, fill: "var(--ink)", "pointer-events": "none" }, svg);
+        e.textContent = g.label;
+      }
+    });
+    const tcol = ["var(--s3)", "var(--s0)", "var(--s4)", "var(--s2)", "var(--s8)", "var(--s6)"];
+    HX.tel.forEach((ch, i) => {
+      let d = "";
+      ch.forEach((v, k) => { d += (k ? "L" : "M") + x(k * HX.tel_dt).toFixed(1) + "," + (ty + 3 + (1 - v) * (th - 6)).toFixed(1); });
+      el("path", { d, fill: "none", stroke: tcol[i], "stroke-width": 1.3 }, svg);
+    });
+    el("line", { x1: x0, x2: x0 + pw, y1: ay - 8, y2: ay - 8, stroke: "var(--rule)" }, svg);
+    for (let t = 0; t <= D; t += pw < 400 ? 20 : 10) {
+      const e = el("text", { x: x(t), y: ay + 6, "text-anchor": t === 0 ? "start" : "middle", "font-size": 10.5, fill: "var(--ink-dim)", "font-family": "IBM Plex Mono, monospace" }, svg);
+      e.textContent = t === 0 ? "0 s" : t;
+    }
+    hx.line = el("line", { x1: x0, x2: x0, y1: -2, y2: ay - 6, stroke: "var(--bad)", "stroke-width": 2, "pointer-events": "none" }, svg);
+    Object.assign(hx, { W, x0, pw, cur: -2 });
+    hxUpdate(hx.v ? hx.v.currentTime * HX.speed : 0, true);
+  }
+  function hxUpdate(t, force) {
+    if (!HX || !hx.line) return;
+    const xx = hx.x0 + (Math.min(t, HX.duration) / HX.duration) * hx.pw;
+    hx.line.setAttribute("x1", xx); hx.line.setAttribute("x2", xx);
+    $("#hx-t").textContent = `${t.toFixed(1)} / ${HX.duration.toFixed(1)} s`;
+    const i = HX.segments.findIndex((g) => t >= g.s && t < g.e);
+    if (i === hx.cur && !force) return;
+    hx.cur = i;
+    if (i < 0) {
+      $("#hx-k").textContent = "Between sub-tasks";
+      $("#hx-label").textContent = "Not annotated";
+      $("#hx-text").textContent = "No sub-task is annotated for this stretch.";
+    } else {
+      const g = HX.segments[i];
+      $("#hx-k").textContent = `Sub-task ${i + 1} of ${HX.segments.length} · ${g.s.toFixed(1)}–${g.e.toFixed(1)} s`;
+      $("#hx-label").textContent = g.label;
+      $("#hx-text").textContent = g.text;
+    }
+  }
+  function hxTick() { if (HX && hx.v && !hx.v.paused) hxUpdate(hx.v.currentTime * HX.speed); }
+  function initHumanoid() {
+    if (!HX || !hx.v) return;
+    $("#hx-meta").innerHTML = [["Task", HX.task], ["Robot unit", HX.robot], ["Length", `${HX.duration.toFixed(1)} s`],
+      ["Sub-tasks", `${HX.segments.length} (${HX.kinds.length} kinds)`], ["Joint state", `${HX.dof}-D at 30 Hz`],
+      ["Outcome", HX.status]].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+    $("#hx-legend").innerHTML = HX.kinds.map((k, i) => `<span><i style="background:${hxColor({ label: k, k: i })}"></i>${k}</span>`).join("");
+    drawHumanoid();
+    const toggle = () => {
+      if (hx.v.paused) { hx.user = false; hx.media.classList.remove("paused"); hx.v.play().catch(() => {}); }
+      else { hx.user = true; hx.media.classList.add("paused"); hx.v.pause(); }
+    };
+    hx.media.addEventListener("click", toggle);
+    hx.media.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+    const seek = (clientX) => {
+      const r = hx.svg.getBoundingClientRect();
+      const px = ((clientX - r.left) / r.width) * hx.W;
+      const t = Math.max(0, Math.min(HX.duration - 0.05, ((px - hx.x0) / hx.pw) * HX.duration));
+      hx.v.currentTime = t / HX.speed;
+      hxUpdate(t, true);
+    };
+    let drag = false;
+    hx.svg.addEventListener("pointerdown", (e) => { drag = true; seek(e.clientX); });
+    window.addEventListener("pointermove", (e) => { if (drag) seek(e.clientX); });
+    window.addEventListener("pointerup", () => { drag = false; });
+    hx.svg.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      e.preventDefault();
+      const t = hx.v.currentTime * HX.speed + (e.key === "ArrowRight" ? 2 : -2);
+      hx.v.currentTime = Math.max(0, Math.min(HX.duration - 0.05, t)) / HX.speed;
+      hxUpdate(hx.v.currentTime * HX.speed, true);
+    });
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((ents) => ents.forEach((en) => {
+        if (en.isIntersecting && !hx.user && !reduced) hx.v.play().catch(() => {}); else if (!en.isIntersecting) hx.v.pause();
+      }), { threshold: 0.3 }).observe($("#hx"));
+    }
+  }
+
   /* ---------------- Fig. 4: unseen / seen switch ---------------- */
   const PARETO = {
     ood: {
@@ -753,12 +852,14 @@
   drawHero();
   initExplorer();
   initVideos();
-  (function loop() { heroTick(); cardsTick(); requestAnimationFrame(loop); })();
+  initHumanoid();
+  (function loop() { heroTick(); cardsTick(); hxTick(); requestAnimationFrame(loop); })();
   let lastW = window.innerWidth;
   window.addEventListener("resize", debounce(() => {
     if (window.innerWidth === lastW) return;
     lastW = window.innerWidth;
     drawHero();
     if (EPS.length) drawExplorer();
+    drawHumanoid();
   }, 150));
 })();

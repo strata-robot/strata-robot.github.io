@@ -20,7 +20,7 @@ Preview (private): https://claude.ai/artifact/Rs7NALzfhYWCof2ZLhLP6f
 | Step 1 TVF | 3 cards (encoders, gated fusion Eq. 4, pyramid); modality ablation bars; 7.97× real time; Fig. 4 | Sec. 4.1, Tab. 5, Fig. 4 |
 | Step 2 FOCUS | evidence → score Eq. 5 → calibration → decision bands; AUROC/ECE/F1 dumbbells; BH table | Sec. 4.2, Tab. 2, 3 |
 | Results | interactive Table 1 (benchmark × seen/unseen × tolerance), STRATA row on unseen; benchmark cards; Figs. 5–8 gallery | Tab. 1, 2, 13, 15 |
-| Dataset | 100 h humanoid stats, Table 8, Table 4 transfer | Supp. A.2 |
+| Dataset | 100 h humanoid stats; live example (fold clothes, olive shirt: torso/head/left-wrist video, annotated sub-tasks, joint traces); Table 8, Table 4 | Supp. A.2 + m2v2_50h |
 | Cite | BibTeX with copy button | – |
 
 ## Files
@@ -35,6 +35,7 @@ static/img/paper/          paper figures (fig1, fig2, fig4–fig9) + extracted.j
 tools/select_examples.py   rank recordings per benchmark from FOCUS dumps
 tools/build_examples.py    explorer data + frames for the chosen recordings
 tools/build_videos.py      video cards (static/video/<ep>.mp4, 4x) + hero background (hero.mp4, 2x, rec 626)
+tools/build_humanoid.py    dataset example (single-colour shirt, cloth folding): 3-camera video + annotations + joint traces
 tools/extract_paper_figs.py  cut figures from the final PDF (300 dpi, auto-trim)
 tools/make_preview.py      strip the document skeleton for the claude.ai preview
 ```
