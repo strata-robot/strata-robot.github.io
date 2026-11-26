@@ -37,6 +37,7 @@ tools/build_examples.py    explorer data + frames for the chosen recordings
 tools/build_videos.py      video cards (static/video/<ep>.mp4, 4x) + hero background (hero.mp4, 2x, rec 626)
 tools/build_humanoid.py    dataset example (single-colour shirt, cloth folding): 3-camera video + annotations + joint traces
 tools/extract_paper_figs.py  cut figures from the final PDF (300 dpi, auto-trim)
+tools/stamp.py             cache-busting ?v=<hash> on CSS/JS links (run before committing)
 tools/make_preview.py      strip the document skeleton for the claude.ai preview
 ```
 
@@ -86,6 +87,9 @@ your name stays off the anonymous site). `/paper/` (review copy + pipeline sourc
    ```
 5. Repo **Settings → Pages → Build and deployment**: Source = *Deploy from a branch*, branch `main`,
    folder `/ (root)`. The site is live at `https://strata-robot.github.io` a minute later.
+
+Cache: run `python3 tools/stamp.py` before every commit that changes CSS/JS/data. It adds `?v=<hash>` to every
+CSS/JS link (GitHub Pages lets browsers keep files 10 min, which once paired a new index.html with an old main.js).
 
 Later changes: edit, `git commit -am "..."`, `git push`. Before going public, decide on the draft
 banner in `index.html` and do not name the venue while the paper is under double-blind review.
