@@ -114,11 +114,13 @@
   <div class="wrap">
     <div class="kicker">One recording, step by step</div>
     <h2>A long demonstration is a stack of sub-tasks. <em>Where do they change?</em></h2>
-    <p class="intro">Two recordings from AgiBot World 2026 RL tasks that no model saw in training. Step through the pipeline, then hover or tap the timeline to see the frame, the sub-task, and what FOCUS decided about each candidate boundary. Use the arrow keys to jump between candidates.</p>
+    <p class="intro">Nine recordings of tasks that no model saw in training, from three benchmarks and three robots. Pick one, step through the pipeline, then hover or tap the timeline to see the frame, the sub-task, and what FOCUS decided about each candidate boundary. Use the arrow keys to jump between candidates.</p>
+
+    <div class="picks" id="ex-eps" role="group" aria-label="Example recording"></div>
 
     <div class="ex" id="ex">
       <div class="ex-bar">
-        <div class="seg" role="group" aria-label="Recording" id="ex-eps"></div>
+        <div class="ex-title" id="ex-title"></div>
         <div class="steps" role="group" aria-label="Pipeline step" id="ex-steps">
           <button type="button" data-stage="1" aria-pressed="false"><b>1</b>Recording</button>
           <button type="button" data-stage="2" aria-pressed="false"><b>2</b>TVF detects</button>
@@ -146,7 +148,7 @@
         <div class="f1s" id="ex-f1"></div>
       </div>
     </div>
-    <p class="note">These recordings were chosen to show the pipeline clearly. FOCUS uses five labelled recordings of the same task, none of them shown here. Averages over all unseen tasks are under <a href="#results">Results</a>.</p>
+    <p class="note">How these were picked: among all unlabelled recordings of unseen tasks, the ones where FOCUS changed TVF's output the most, at most one per task. They show what the pipeline can do, not its average; averages over all unseen tasks are under <a href="#results">Results</a>. FOCUS uses five labelled recordings of each task, none of them shown here; P values are from one random draw of those five.</p>
     <details class="paperfig" data-optional-block>
       <summary>Show the paper figure (Fig. 9)</summary>
       <figure class="fig"><img src="static/img/paper/fig9_example.webp" alt="Paper Figure 9: the same desk-lamp recording with TVF, FOCUS and STRATA rows and three zoomed examples." loading="lazy" data-optional data-zoom>

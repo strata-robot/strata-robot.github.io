@@ -165,8 +165,19 @@
   /* ---------------- explorer ---------------- */
   const ex = {
     svg: $("#ex-svg"), ep: 0, stage: 4, pinned: null, hover: null, geo: null,
-    start: { "27113": 27.8, "20397": 11.3 },
   };
+  /* Opening selection: the most confident TVF false alarm that FOCUS rejected (away from the recording's ends),
+     else the strongest boundary FOCUS recovered. */
+  function defaultPin(ep) {
+    let best = -1, bs = -1;
+    ep.cand.forEach((c, k) => {
+      if (!c.prop && c.h >= 0.5 && c.y === 0 && c.p < 0.5 && c.t > 2 && c.t < ep.duration - 2 && c.h - c.p > bs) { bs = c.h - c.p; best = k; }
+    });
+    if (best < 0) ep.cand.forEach((c, k) => {
+      if (c.y === 1 && c.p >= 0.5 && (c.prop || c.h < 0.5) && c.p > bs) { bs = c.p; best = k; }
+    });
+    return best >= 0 ? { k: best } : { t: 0 };
+  }
   function exGeo() {
     const W = Math.max(300, ex.svg.parentElement.clientWidth - 22);
     const LW = W < 520 ? 50 : 72;
@@ -397,19 +408,35 @@
   function setEpisode(i) {
     ex.ep = i;
     const ep = EPS[i];
-    $$("#ex-eps button").forEach((b, j) => b.setAttribute("aria-pressed", String(j === i)));
+    $$("#ex-eps .pick").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.i === i)));
+    $("#ex-title").innerHTML = `<b>${ep.name}</b><span>${ep.bench} · ${Math.round(ep.duration)} s · ${ep.truth.length} true boundaries</span>`;
     drawExplorer();
-    const k = ep.cand.findIndex((c) => Math.abs(c.t - (ex.start[ep.id] ?? -99)) < 0.05);
-    ex.pinned = k >= 0 ? { k } : { t: 0 };
+    ex.pinned = defaultPin(ep);
     updateSide();
   }
   function initExplorer() {
     if (!EPS.length) return;
-    const tabs = $("#ex-eps");
+    const box = $("#ex-eps");
+    const groups = [];
     EPS.forEach((ep, i) => {
-      const b = h("button", { type: "button", "aria-pressed": "false" }, `${ep.name} <span style="color:var(--ink-faint)">${Math.round(ep.duration)} s</span>`);
-      b.addEventListener("click", () => setEpisode(i));
-      tabs.appendChild(b);
+      let g = groups.find((x) => x.bench === ep.bench);
+      if (!g) { g = { bench: ep.bench, items: [] }; groups.push(g); }
+      g.items.push(i);
+    });
+    groups.forEach((g) => {
+      const row = h("div", { class: "prow" }, `<span class="plabel">${g.bench}</span>`);
+      const cards = h("div", { class: "pcards" });
+      g.items.forEach((i) => {
+        const ep = EPS[i], sets = episodeSets(ep);
+        const keys = ep.frames.filter((f) => f.key);
+        const th = (keys.length ? keys : ep.frames)[Math.floor((keys.length ? keys : ep.frames).length / 2)];
+        const b = h("button", { type: "button", class: "pick", "data-i": i, "aria-pressed": "false" },
+          `<img src="${th.src}" alt="" loading="lazy"><span><b>${ep.name}</b><span class="gain">F1 ${Math.round(sets.mt.f1 * 100)} → <em>${Math.round(sets.ms.f1 * 100)}</em></span></span>`);
+        b.addEventListener("click", () => setEpisode(i));
+        cards.appendChild(b);
+      });
+      row.appendChild(cards);
+      box.appendChild(row);
     });
     $$("#ex-steps button").forEach((b) => b.addEventListener("click", () => {
       ex.stage = +b.dataset.stage;
